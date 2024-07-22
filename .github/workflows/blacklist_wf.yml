@@ -1,0 +1,30 @@
+name: Manage Blacklist
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform (add/remove)'
+        required: true
+        default: 'add'
+      email:
+        description: 'Email address to manage'
+        required: true
+
+jobs:
+  manage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Execute Lambda to Manage Blacklist
+        run: |
+          aws lambda invoke \
+            --function-name emailLimitHandler \
+            --payload '{"action": "${{ github.event.inputs.action }}", "email": "${{ github.event.inputs.email }}"}' \
+            response.json
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
